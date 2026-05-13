@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nualla — Beauty Shop</title>
+
+<!-- Bootstrap -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+  rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  rel="stylesheet">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link
+  rel="preconnect"
+  href="https://fonts.gstatic.com"
+  crossorigin>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@400;700&family=Montserrat:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet">
+
+<!-- Main CSS -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── NAVBAR (fixed, single instance) ── -->
+<nav class="nualla-nav" id="mainNav">
+  <div class="nav-inner">
+
+    <!-- FIX 6: Brand navigates to home/shop -->
+    <a class="navbar-brand" onclick="showPage('home')">Nualla</a>
+
+    <ul class="nav-links">
+       <li><button class="nav-link" onclick="navTo('home', this)">Collections</button></li>
+      <li><button class="nav-link active" onclick="navTo('shop', this)">Shop</button></li>
+      <li><button class="nav-link" onclick="navTo('categories', this)">Categories</button></li>
+      <li><button class="nav-link" onclick="navTo('about', this)">About</button></li>
+    </ul>
+
+    <div class="nav-icons">
+      <button class="nav-icon-btn" title="Search" onclick="openSearch()">
+        <i class="bi bi-search"></i>
+      </button>
+      <button class="nav-icon-btn" title="Wishlist">
+        <i class="bi bi-heart"></i>
+      </button>
+      <div class="divider"></div>
+      <!-- FIX 7: Cart badge starts at 0, routes to cart page -->
+      <button class="nav-icon-btn" title="Cart" onclick="showPage('cart')">
+        <i class="bi bi-bag"></i>
+        <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+      </button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ── SEARCH OVERLAY (single instance) ── -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearch()">
+  <div class="search-box" onclick="event.stopPropagation()">
+    <div class="d-flex align-items-center" style="padding:0 1.2rem;">
+      <i class="bi bi-search" style="color:var(--muted);font-size:1.1rem;margin-right:.8rem;"></i>
+      <input class="search-input" id="searchInput" placeholder="Search Nualla products…" oninput="handleSearch(this.value)"/>
+      <button onclick="closeSearch()" style="background:none;border:none;padding:.8rem .5rem;font-size:1.2rem;color:var(--muted);cursor:pointer;">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div id="searchResults" style="padding:0 1.2rem 1rem;font-size:.85rem;color:var(--muted);max-height:340px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGES ═══════════════ -->
+
+<!-- ── 0. HOME / HERO PAGE ── -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">New Collection — Spring 2026</p>
+      <h1>Luxury Beauty, Redefined</h1>
+      <a class="hero-cta" 
+   onclick="navTo('shop', document.querySelector('.nav-link'))"
+   style="background-color:#934640; color:#fff; padding:10px 20px; border-radius:5px; text-decoration:none;">
+   Explore Now
+</a>
+
+    </div>
+  </section>
+</div>
+
+<!-- ── 1. SHOP PAGE ── -->
+<div class="page" id="page-shop">
+  <div class="shop-hero">
+    <div class="container">
+      <span class="hero-tag">New Collection 2026</span>
+      <h2 class="hero-title">All Products</h2>
+      <p class="hero-sub">Curated beauty, made for you</p>
+    </div>
+  </div>
+
+  <div class="category-bar">
+    <div class="category-pills">
+      <button class="cat-pill active" onclick="filterCategory('all',this)">All</button>
+      <button class="cat-pill" onclick="filterCategory('lips',this)">Lips</button>
+      <button class="cat-pill" onclick="filterCategory('eyes',this)">Eyes</button>
+      <button class="cat-pill" onclick="filterCategory('face',this)">Face</button>
+      <button class="cat-pill" onclick="filterCategory('skincare',this)">Skincare</button>
+      <button class="cat-pill" onclick="filterCategory('eyeLiner',this)">Eye Liner</button>
+      <button class="cat-pill" onclick="filterCategory('moinstrizer',this)">Moisturizer</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="filter-bar">
+      <span class="results-count" id="resultsCount">9 products</span>
+      <div class="d-flex align-items-center gap-2">
+        <span style="font-size:.78rem;color:var(--muted);letter-spacing:.06em;">Sort:</span>
+        <select class="sort-select" onchange="sortProducts(this.value)">
+          <option value="featured">Featured</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </div>
+</div>
+
+<!-- ── 2. CATEGORIES PAGE ── -->
+<div class="page" id="page-categories">
+  <div class="shop-hero">
+    <div class="container">
+      <span class="hero-tag">Browse by</span>
+      <h2 class="hero-title">Categories</h2>
+      <p class="hero-sub">Find exactly what you're looking for</p>
+    </div>
+  </div>
+  <div class="container py-5">
+    <div class="row g-3" id="catGrid"></div>
+  </div>
+</div>
+
+<!-- ── 3. PRODUCT DETAIL PAGE ── -->
+<div class="page" id="page-detail">
+  <div class="container detail-wrap">
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb" style="font-size:.78rem;letter-spacing:.06em;">
+        <li class="breadcrumb-item">
+          <a href="#" onclick="showPage('shop')" style="color:var(--muted);text-decoration:none;">Shop</a>
+        </li>
+        <li class="breadcrumb-item active" style="color:var(--rose);" id="bcProduct">Product</li>
+      </ol>
+    </nav>
+    <div class="row g-4 g-lg-5">
+      <div class="col-md-5">
+        <img id="detailImgMain" class="detail-img-main" src="" alt="Product"/>
+        <div class="detail-thumb-row" id="detailThumbs"></div>
+      </div>
+      <div class="col-md-7">
+        <p class="detail-brand" id="detailBrand"></p>
+        <h1 class="detail-title" id="detailTitle"></h1>
+        <div class="stars" id="detailStars"></div>
+        <p class="detail-price" id="detailPrice"></p>
+        <p class="detail-desc" id="detailDesc"></p>
+
+        <p style="font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">
+          Shade: <span id="detailShadeLabel" style="color:var(--ink);">–</span>
+        </p>
+        <div class="shade-grid" id="shadeGrid"></div>
+
+        <p style="font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Quantity</p>
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span class="qty-val" id="qtyVal">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap mt-1">
+          <button class="btn-nualla-primary" onclick="addToCartFromDetail()">
+            <i class="bi bi-bag-plus"></i> Add to Cart
+          </button>
+          <button class="btn-nualla-outline">
+            <i class="bi bi-heart"></i> Wishlist
+          </button>
+        </div>
+
+        <div class="accordion detail-accordion mt-4" id="detailAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc1">
+                Ingredients
+              </button>
+            </h2>
+            <div id="acc1" class="accordion-collapse collapse" data-bs-parent="#detailAccordion">
+              <div class="accordion-body">Aqua, Dimethicone, Cyclopentasiloxane, Titanium Dioxide, Mica, Vitamin E, Rose Hip Oil. Dermatologist tested and approved for all skin types.</div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc2">
+                How to Use
+              </button>
+            </h2>
+            <div id="acc2" class="accordion-collapse collapse" data-bs-parent="#detailAccordion">
+              <div class="accordion-body">Apply with fingertips or a brush. Start from the centre of the face and blend outward. Layer for more coverage. Set with powder for a lasting finish.</div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc3">
+                Shipping & Returns
+              </button>
+            </h2>
+            <div id="acc3" class="accordion-collapse collapse" data-bs-parent="#detailAccordion">
+              <div class="accordion-body">Free shipping on orders above $60. Standard delivery 3–5 business days. Returns accepted within 30 days. Unused and in original packaging only.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 4. CART PAGE ── -->
+<div class="page" id="page-cart">
+  <div class="container" style="padding-top:5rem;padding-bottom:3rem;">
+    <h1 class="section-title mb-4">Your Bag</h1>
+    <div class="row g-4" id="cartContent"></div>
+  </div>
+</div>
+
+<!-- ── 5. CHECKOUT PAGE ── -->
+<div class="page" id="page-checkout">
+  <div class="container py-5" style="padding-top:5rem !important; max-width:860px;">
+    <h1 class="section-title mb-4">Checkout</h1>
+    <div class="checkout-step-bar" id="stepBar"></div>
+    <div id="checkoutBody"></div>
+  </div>
+</div>
+
+<!-- ── 6. SUCCESS PAGE ── -->
+<div class="page" id="page-success">
+  <div class="success-screen">
+    <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+    <span class="section-label">Order confirmed</span>
+    <h1 class="section-title mt-1">Thank you!</h1>
+    <p style="color:var(--muted);font-size:.92rem;margin:1rem auto 2rem;max-width:380px;">
+      Your Nualla order is on its way. A confirmation has been sent to your email.
+    </p>
+    <button class="btn-nualla-primary" onclick="showPage('shop')">
+      <i class="bi bi-arrow-left"></i> Continue Shopping
+    </button>
+  </div>
+</div>
+
+<!-- ── 6 ABOUT PAGE ── -->
+<div class="page" id="page-about">
+
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <div class="about-overlay"></div>
+
+    <div class="container about-content">
+      <p class="about-eyebrow">Our Story</p>
+      <h1>Beauty Crafted With Elegance</h1>
+      <p class="about-text">
+        We believe beauty is more than appearance — it’s confidence,
+        self-expression, and timeless luxury. Our collections are designed
+        to elevate your daily rituals with premium ingredients and refined style.
+      </p>
+    </div>
+  </section>
+
+  <!-- Brand Story -->
+  <section class="about-section">
+    <div class="container">
+      <div class="row align-items-center g-5">
+
+        <div class="col-lg-6">
+          <img src="imgs/luvury.jpg"
+               alt="Luxury Beauty"
+               class="img-fluid rounded-4 shadow">
+        </div>
+
+        <div class="col-lg-6">
+          <p class="section-subtitle">Who We Are</p>
+
+          <h2 class="section-title mb-4">
+            Redefining Modern Beauty
+          </h2>
+
+          <p class="text-muted">
+            Founded with a passion for elegance and innovation,
+            our beauty house combines modern skincare science with
+            luxurious experiences.
+          </p>
+
+          <p class="text-muted">
+            Every product is carefully curated to deliver premium quality,
+            sophisticated aesthetics, and a feeling of confidence in every use.
+          </p>
+
+          <a class="hero-cta mt-3 d-inline-block"
+             onclick="navTo('shop', document.querySelector('.nav-link'))">
+            Collection
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="about-features">
+    <div class="container">
+      <div class="row g-4 text-center">
+
+        <div class="col-md-4">
+          <div class="feature-card">
+            <h3>Premium Quality</h3>
+            <p>
+              Carefully selected ingredients and luxury-grade formulations.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-card">
+            <h3>Cruelty Free</h3>
+            <p>
+              Ethical beauty products designed with responsibility and care.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-card">
+            <h3>Worldwide Shipping</h3>
+            <p>
+              Delivering luxury beauty experiences across the globe.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>© 2026 <span>Nualla Beauty</span> — All rights reserved</p>
+</footer>
+
+<!-- ── TOAST ── -->
+<div class="toast-nualla" id="toast">
+  <i class="bi bi-bag-check"></i>
+  <span id="toastMsg">Added to cart</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ── DATA ── */
+const PRODUCTS = [
+  {id:1,name:'Velvet Lip Rouge',brand:'Nualla Lips',category:'lips',price:28,oldPrice:null,rating:4.8,reviews:214,badge:'new',
+   desc:'A richly pigmented lip colour with a soft-matte velvet finish. Hydrating formula infused with vitamin E keeps lips moisturised all day.',
+   colors:['#b5474b','#8b1a3a','#d4856a','#c25b7a','#6b2737'],
+   shadeNames:['Classic Red','Berry Wine','Terracotta','Dusty Rose','Plum'],
+   img:'imgs/velvet rouge.jpg',
+   thumbs:['imgs/rouge 2.jpg','imgs/rouge 3.jpg','imgs/rouge 4.jpg']},
+  {id:2,name:'Skin Veil Foundation',brand:'Nualla Face',category:'face',price:45,oldPrice:58,rating:4.6,reviews:98,badge:'sale',
+   desc:'Buildable medium-to-full coverage with a natural skin finish. SPF 20. Suitable for all skin tones.',
+   colors:['#f5dcc8','#e8c4a0','#c9956a','#a0704a','#7a4e30'],
+   shadeNames:['Porcelain','Ivory','Sand','Tawny','Espresso'],
+   img:'imgs/Moin1 (1).jpg',
+   thumbs:['imgs/Moin1 (2).jpg','imgs/Moin 3.jpg']},
+  {id:3,name:'Midnight Kohl Liner',brand:'Nualla Eyes',category:'eyes',price:19,oldPrice:null,rating:4.9,reviews:341,badge:null,
+   desc:'Intensely pigmented kohl liner for a bold, smudged effect. Waterproof and long-lasting up to 16 hours.',
+   colors:['#111111','#2c3e6b','#4a2060','#6b3020'],
+   shadeNames:['Jet Black','Navy','Plum','Bronze'],
+   img:'imgs/kohl 1 (2).jpg',
+   thumbs:['imgs/kohl 1 (1).jpg']},
+  {id:4,name:'Rose Quartz Blush',brand:'Nualla Face',category:'face',price:32,oldPrice:null,rating:4.7,reviews:177,badge:'new',
+   desc:'Silky buildable blush with a luminous finish. Infused with rose quartz mineral extract for a fresh, lit-from-within glow.',
+   colors:['#e8a0a8','#d4687c','#c89060','#b47890'],
+   shadeNames:['Petal','Coral Kiss','Peach Nectar','Mauve'],
+   img:'imgs/rose ground.jpg',
+   thumbs:['imgs/plussher.jpg']},
+  {id:5,name:'Lash Amplify Mascara',brand:'Nualla Eyes',category:'eyes',price:24,oldPrice:null,rating:4.5,reviews:289,badge:null,
+   desc:'Volumising and lengthening mascara with a curved brush for maximum lift. Buildable formula, no clumping.',
+   colors:['#111111','#2c3a2c'],
+   shadeNames:['Black','Deep Forest'],
+   img:'imgs/mascara 2 (1).jpg',
+   thumbs:['imgs/mascara 2 (2).jpg']},
+  {id:6,name:'Dew Serum Primer',brand:'Nualla Skincare',category:'skincare',price:38,oldPrice:42,rating:4.8,reviews:120,badge:'sale',
+   desc:'Lightweight serum-primer hybrid that blurs pores, evens skin tone, and creates a radiant base for makeup.',
+   colors:['#f0e8d8'],
+   shadeNames:['Universal'],
+   img:'imgs/primer 1 (1).jpg',
+   thumbs:['imgs/primer 1 (2).jpg']},
+  {id:7,name:'Glossy Lip Plumper',brand:'Nualla Lips',category:'lips',price:22,oldPrice:null,rating:4.4,reviews:88,badge:null,
+   desc:'High-shine plumping gloss with peptide complex for fuller-looking lips instantly. Non-sticky formula.',
+   colors:['#e8b0b8','#d48090','#c060a0','#f0a090'],
+   shadeNames:['Baby Pink','Flamingo','Orchid','Peach'],
+   img:'imgs/lip gloss 1 (1).jpg',
+   thumbs:['imgs/lip gloss 1 (2).jpg']},
+  {id:8,name:'Eyeliners',brand:'Nualla Eyeliner',category:'eyeLiner',price:70,oldPrice:null,rating:3.8,reviews:63,badge:null,
+   desc:'Complete eye liner kit with smooth, smudge-proof formula for precise definition and bold, long-lasting eye looks.',
+   colors:['#111111','#2c3e6b','#4a2060','#6b3020'],
+   shadeNames:['Jet Black','Navy','Plum','Bronze'],
+   img:'imgs/Eyeliner 1 (1).jpg',
+   thumbs:['imgs/Eyeliner 1 (2).jpg']},
+  {id:9,name:'Contour & Glow Kit',brand:'Nualla Moisturizer',category:'moinstrizer',price:68,oldPrice:85,rating:4.9,reviews:63,badge:'sale',
+   desc:'Keeping the skin from any chemical of makeup materials and look makeup very professional.',
+   colors:['#c8a878','#b89060'],
+   shadeNames:['Light/Medium','Medium/Deep'],
+   img:'imgs/Contor 1 (1).jpg',
+   thumbs:['imgs/Contor 1 (2).jpg']},
+];
+
+const CATEGORIES = [
+  {key:'lips',      label:'Lips',        count:2, img:'imgs/lip gloss 1 (1).jpg'},
+  {key:'eyes',      label:'Eyes',        count:2, img:'imgs/eyes makeup.jpg'},
+  {key:'face',      label:'Face',        count:2, img:'imgs/rose ground.jpg'},
+  {key:'skincare',  label:'Skincare',    count:1, img:'imgs/faces.jpg'},
+  {key:'eyeLiner',  label:'Eye Liner',   count:1, img:'imgs/Eyeliner 1 (1).jpg'},
+  {key:'moinstrizer',label:'Moisturizer',count:1, img:'imgs/Moin1 (1).jpg'},
+];
+
+/* ── STATE ── */
+let cart = [];
+let currentFilter = 'all';
+let currentProduct = null;
+let currentQty = 1;
+let currentShade = 0;
+let currentStep = 0;
+
+/* ── PAGE ROUTING ── */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // FIX 8: Darken navbar on inner pages, transparent on home hero
+  const nav = document.getElementById('mainNav');
+  if (name === 'home') {
+    nav.classList.remove('dark');
+  } else {
+    nav.classList.add('dark');
+  }
+
+  if (name === 'cart') renderCart();
+  if (name === 'checkout') renderCheckout();
+}
+
+// FIX 9: Nav link helper — updates active state AND routes page
+function navTo(pageName, btn) {
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  showPage(pageName);
+}
+
+/* ── PRODUCT GRID ── */
+function renderGrid(products) {
+  const grid = document.getElementById('productGrid');
+  document.getElementById('resultsCount').textContent = products.length + ' products';
+
+  grid.innerHTML = products.map(p => `
+    <div class="product-card" onclick="openProduct(${p.id})">
+      <div class="product-img-wrap">
+        ${p.badge === 'new'  ? '<span class="badge-new">New</span>'  : ''}
+        ${p.badge === 'sale' ? '<span class="badge-sale">Sale</span>' : ''}
+        <img src="${p.img}" alt="${p.name}" loading="lazy"/>
+        <button class="wishlist-btn" onclick="event.stopPropagation(); this.classList.toggle('active')">
+          <i class="bi bi-heart${this && this.classList && this.classList.contains('active') ? '-fill' : ''}"></i>
+        </button>
+        <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd(${p.id})">
+          <i class="bi bi-bag-plus me-1"></i> Quick Add
+        </button>
+      </div>
+      <div class="product-info">
+        <p class="product-brand">${p.brand}</p>
+        <p class="product-name">${p.name}</p>
+        <div class="stars">
+          ${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5 - Math.round(p.rating))}
+          <span>(${p.reviews})</span>
+        </div>
+        <div class="product-price">
+          <span class="price-main">$${p.price}</span>
+          ${p.oldPrice ? `<span class="price-old">$${p.oldPrice}</span>` : ''}
+        </div>
+        <div class="swatches">
+          ${p.colors.slice(0,5).map(c => `<span class="swatch" style="background:${c}"></span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterCategory(cat, btn) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = cat;
+  const filtered = cat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === cat);
+  renderGrid(filtered);
+}
+
+function sortProducts(val) {
+  const filtered = currentFilter === 'all' ? [...PRODUCTS] : PRODUCTS.filter(p => p.category === currentFilter);
+  if (val === 'price-low')  filtered.sort((a,b) => a.price - b.price);
+  if (val === 'price-high') filtered.sort((a,b) => b.price - a.price);
+  if (val === 'rating')     filtered.sort((a,b) => b.rating - a.rating);
+  renderGrid(filtered);
+}
+
+/* ── CATEGORIES GRID ── */
+function renderCategories() {
+  const g = document.getElementById('catGrid');
+  g.innerHTML = CATEGORIES.map(c => `
+    <div class="col-6 col-md-4">
+      <div class="cat-card" onclick="filterAndGoShop('${c.key}')">
+        <img src="${c.img}" alt="${c.label}" loading="lazy"/>
+        <div class="cat-card-overlay">
+          <p class="cat-card-name">${c.label}</p>
+          <p class="cat-card-count">${c.count} products</p>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterAndGoShop(cat) {
+  showPage('shop');
+  const btn = document.querySelector(`.cat-pill[onclick*="'${cat}'"]`);
+  if (btn) filterCategory(cat, btn);
+}
+
+/* ── PRODUCT DETAIL ── */
+function openProduct(id) {
+  currentProduct = PRODUCTS.find(p => p.id === id);
+  if (!currentProduct) return;
+  currentQty = 1; currentShade = 0;
+
+  document.getElementById('bcProduct').textContent = currentProduct.name;
+  document.getElementById('detailImgMain').src = currentProduct.img;
+  document.getElementById('detailBrand').textContent = currentProduct.brand;
+  document.getElementById('detailTitle').textContent = currentProduct.name;
+  document.getElementById('detailPrice').textContent = '$' + currentProduct.price;
+  document.getElementById('detailDesc').textContent = currentProduct.desc;
+  document.getElementById('qtyVal').textContent = 1;
+
+  const stars = '★'.repeat(Math.round(currentProduct.rating)) + '☆'.repeat(5 - Math.round(currentProduct.rating));
+  document.getElementById('detailStars').innerHTML = `${stars} <span style="color:var(--muted);font-size:.8rem;">(${currentProduct.reviews} reviews)</span>`;
+
+  // Thumbnails
+  const thumbs = document.getElementById('detailThumbs');
+  thumbs.innerHTML = currentProduct.thumbs.map((t,i) => `
+    <img src="${t}" class="detail-thumb ${i===0?'active':''}" onclick="setDetailImg('${t}', this)" alt="thumb"/>
+  `).join('');
+
+  // Shades
+  const shadeGrid = document.getElementById('shadeGrid');
+  shadeGrid.innerHTML = currentProduct.colors.map((c,i) => `
+    <button class="shade-btn ${i===0?'active':''}" style="background:${c}" onclick="selectShade(${i},this)" title="${currentProduct.shadeNames[i]}"></button>
+  `).join('');
+  document.getElementById('detailShadeLabel').textContent = currentProduct.shadeNames[0];
+
+  showPage('detail');
+}
+
+function setDetailImg(src, el) {
+  document.getElementById('detailImgMain').src = src;
+  document.querySelectorAll('.detail-thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectShade(i, el) {
+  currentShade = i;
+  document.querySelectorAll('.shade-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('detailShadeLabel').textContent = currentProduct.shadeNames[i];
+}
+
+function changeQty(d) {
+  currentQty = Math.max(1, currentQty + d);
+  document.getElementById('qtyVal').textContent = currentQty;
+}
+
+/* ── CART ── */
+function addToCart(product, shade, qty) {
+  const key = product.id + '-' + shade;
+  const existing = cart.find(i => i.key === key);
+  if (existing) { existing.qty += qty; }
+  else { cart.push({ key, product, shade, qty }); }
+  updateCartBadge();
+  showToast('Added to cart — ' + product.name);
+}
+
+function addToCartFromDetail() {
+  addToCart(currentProduct, currentShade, currentQty);
+}
+
+function quickAdd(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  addToCart(p, 0, 1);
+}
+
+function removeFromCart(key) {
+  cart = cart.filter(i => i.key !== key);
+  updateCartBadge();
+  renderCart();
+}
+
+function updateCartBadge() {
+  const total = cart.reduce((s,i) => s + i.qty, 0);
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+}
+
+function cartTotal() {
+  return cart.reduce((s,i) => s + (i.product.price * i.qty), 0).toFixed(2);
+}
+
+function renderCart() {
+  const el = document.getElementById('cartContent');
+  if (cart.length === 0) {
+    el.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-bag" style="font-size:3rem;color:var(--blush);"></i>
+        <p class="section-title mt-3">Your bag is empty</p>
+        <p style="color:var(--muted);font-size:.9rem;margin:.6rem 0 1.5rem;">Add some beautiful products</p>
+        <button class="btn-nualla-primary" onclick="showPage('shop')">
+          <i class="bi bi-arrow-left"></i> Start Shopping
+        </button>
+      </div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="col-lg-8">
+      <table class="table cart-table w-100">
+        <thead>
+          <tr>
+            <th colspan="2">Product</th>
+            <th class="text-center">Qty</th>
+            <th class="text-end">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${cart.map(item => `
+            <tr>
+              <td style="width:80px;padding-right:0;">
+                <img src="${item.product.img}" class="cart-img" alt="${item.product.name}"/>
+              </td>
+              <td>
+                <p class="cart-product-name">${item.product.name}</p>
+                <p class="cart-product-shade">
+                  <span style="display:inline-block;width:10px;height:10px;border-radius:50%;
+                    background:${item.product.colors[item.shade]};margin-right:4px;vertical-align:middle;"></span>
+                  ${item.product.shadeNames[item.shade]}
+                </p>
+                <p class="cart-product-shade" style="margin-top:.1rem;">$${item.product.price}</p>
+              </td>
+              <td class="text-center">
+                <div class="qty-wrap mx-auto">
+                  <button class="qty-btn" onclick="changeCartQty('${item.key}',-1)">−</button>
+                  <span class="qty-val">${item.qty}</span>
+                  <button class="qty-btn" onclick="changeCartQty('${item.key}',1)">+</button>
+                </div>
+              </td>
+              <td class="text-end" style="white-space:nowrap;font-weight:500;">
+                $${(item.product.price * item.qty).toFixed(2)}
+              </td>
+              <td class="text-end">
+                <button class="remove-btn" onclick="removeFromCart('${item.key}')"><i class="bi bi-x-lg"></i></button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <button class="btn-nualla-outline mt-2" onclick="showPage('shop')">
+        <i class="bi bi-arrow-left"></i> Continue Shopping
+      </button>
+    </div>
+    <div class="col-lg-4">
+      <div class="cart-summary-card">
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:300;margin-bottom:1.2rem;font-style:italic;">Order Summary</h2>
+        <div class="summary-row"><span>Subtotal</span><span>$${cartTotal()}</span></div>
+        <div class="summary-row"><span>Shipping</span><span style="color:var(--rose);">Free</span></div>
+        <div class="summary-row total"><span>Total</span><span>$${cartTotal()}</span></div>
+        <div style="margin:1.2rem 0 1.4rem;">
+          <p style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Promo Code</p>
+          <div style="display:flex;">
+            <input class="promo-input" id="promoInput" placeholder="Enter code"/>
+            <button class="promo-btn" onclick="applyPromo()">Apply</button>
+          </div>
+        </div>
+        <button class="btn-nualla-primary w-100 justify-content-center" onclick="showPage('checkout')">
+          Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function changeCartQty(key, d) {
+  const item = cart.find(i => i.key === key);
+  if (item) {
+    item.qty = Math.max(1, item.qty + d);
+    updateCartBadge();
+    renderCart();
+  }
+}
+
+function applyPromo() {
+  const code = document.getElementById('promoInput').value.toUpperCase();
+  showToast(code === 'NUALLA10' ? '10% discount applied! 🎉' : 'Invalid promo code');
+}
+
+/* ── CHECKOUT ── */
+const STEPS = ['Shipping', 'Payment', 'Review'];
+
+function renderCheckout() {
+  currentStep = 0;
+  renderStepBar();
+  renderStepContent();
+}
+
+function renderStepBar() {
+  const bar = document.getElementById('stepBar');
+  bar.innerHTML = STEPS.map((s,i) => `
+    <div class="step-item ${i < currentStep ? 'done' : ''} ${i === currentStep ? 'active' : ''}">
+      <div class="step-circle">${i < currentStep ? '<i class="bi bi-check-lg"></i>' : i+1}</div>
+      <p class="step-label">${s}</p>
+    </div>
+  `).join('');
+}
+
+function renderStepContent() {
+  const el = document.getElementById('checkoutBody');
+  if (currentStep === 0) {
+    el.innerHTML = `
+      <div class="checkout-card">
+        <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:300;font-style:italic;margin-bottom:1.5rem;">Shipping Details</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label-nualla">First name</label>
+            <input class="form-input-nualla" placeholder="Salma"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-nualla">Last name</label>
+            <input class="form-input-nualla" placeholder="Abdelmaksoud"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label-nualla">Email</label>
+            <input class="form-input-nualla" type="email" placeholder="salma@example.com"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label-nualla">Phone</label>
+            <input class="form-input-nualla" type="tel" placeholder="+20 10X XXX XXXX"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label-nualla">Address</label>
+            <input class="form-input-nualla" placeholder="Street address"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-nualla">City</label>
+            <input class="form-input-nualla" placeholder="Cairo"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-nualla">Postal code</label>
+            <input class="form-input-nualla" placeholder="11511"/>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn-nualla-primary" onclick="nextStep()">Next <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>`;
+  } else if (currentStep === 1) {
+    el.innerHTML = `
+      <div class="checkout-card">
+        <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:300;font-style:italic;margin-bottom:1.5rem;">Payment Method</h2>
+        <div onclick="selectPayment(this)" class="payment-option active">
+          <span class="payment-icon">💳</span>
+          <div><p class="payment-label">Credit / Debit Card</p><p class="payment-sub">Visa, Mastercard, Meza</p></div>
+        </div>
+        <div onclick="selectPayment(this)" class="payment-option">
+          <span class="payment-icon">💵</span>
+          <div><p class="payment-label">Cash on Delivery</p><p class="payment-sub">Pay when you receive</p></div>
+        </div>
+        <div onclick="selectPayment(this)" class="payment-option">
+          <span class="payment-icon">📱</span>
+          <div><p class="payment-label">Mobile Wallet</p><p class="payment-sub">Vodafone Cash, Fawry</p></div>
+        </div>
+        <div class="row g-3 mt-2">
+          <div class="col-12">
+            <label class="form-label-nualla">Card number</label>
+            <input class="form-input-nualla" placeholder="•••• •••• •••• ••••" maxlength="19"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label-nualla">Expiry</label>
+            <input class="form-input-nualla" placeholder="MM / YY"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label-nualla">CVV</label>
+            <input class="form-input-nualla" placeholder="•••"/>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn-nualla-outline" onclick="prevStep()"><i class="bi bi-arrow-left"></i> Back</button>
+          <button class="btn-nualla-primary" onclick="nextStep()">Next <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="checkout-card">
+        <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:300;font-style:italic;margin-bottom:1.5rem;">Review & Place Order</h2>
+        ${cart.map(item => `
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <img src="${item.product.img}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;background:var(--nude);" alt=""/>
+            <div style="flex:1;">
+              <p style="font-size:.9rem;font-weight:500;">${item.product.name}</p>
+              <p style="font-size:.78rem;color:var(--muted);">${item.product.shadeNames[item.shade]} × ${item.qty}</p>
+            </div>
+            <p style="font-weight:500;">$${(item.product.price * item.qty).toFixed(2)}</p>
+          </div>
+        `).join('')}
+        <div style="border-top:1px solid rgba(200,160,140,.2);margin:1rem 0;padding-top:1rem;">
+          <div class="d-flex justify-content-between" style="font-weight:500;font-size:1rem;">
+            <span>Total</span>
+            <span style="color:var(--deep);">$${cartTotal()}</span>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn-nualla-outline" onclick="prevStep()"><i class="bi bi-arrow-left"></i> Back</button>
+          <button class="btn-nualla-primary" onclick="placeOrder()">Place Order <i class="bi bi-check-lg"></i></button>
+        </div>
+      </div>`;
+  }
+}
+
+function nextStep() { currentStep = Math.min(2, currentStep+1); renderStepBar(); renderStepContent(); window.scrollTo({top:0,behavior:'smooth'}); }
+function prevStep() { currentStep = Math.max(0, currentStep-1); renderStepBar(); renderStepContent(); }
+
+function selectPayment(el) {
+  document.querySelectorAll('.payment-option').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function placeOrder() {
+  cart = [];
+  updateCartBadge();
+  showPage('success');
+}
+
+/* ── SEARCH ── */
+function openSearch() {
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('searchInput').focus(), 100);
+}
+
+function closeSearch() {
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+}
+
+function handleSearch(val) {
+  const el = document.getElementById('searchResults');
+  if (!val.trim()) { el.innerHTML = ''; return; }
+  const results = PRODUCTS.filter(p =>
+    p.name.toLowerCase().includes(val.toLowerCase()) ||
+    p.category.toLowerCase().includes(val.toLowerCase()) ||
+    p.brand.toLowerCase().includes(val.toLowerCase())
+  );
+  if (!results.length) {
+    el.innerHTML = '<p style="padding:.5rem 0;">No results found.</p>';
+    return;
+  }
+  el.innerHTML = results.map(p => `
+    <div onclick="closeSearch();openProduct(${p.id})"
+      style="display:flex;align-items:center;gap:.8rem;padding:.55rem 0;cursor:pointer;border-bottom:1px solid rgba(200,160,140,.1);">
+      <img src="${p.img}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;background:var(--nude);"/>
+      <div>
+        <p style="font-size:.88rem;color:var(--ink);font-weight:500;">${p.name}</p>
+        <p style="font-size:.76rem;color:var(--muted);">$${p.price}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── TOAST ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ── KEYBOARD SHORTCUTS ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSearch();
+});
+
+/* ── INIT ── */
+renderGrid(PRODUCTS);
+renderCategories();
+</script>
+</body>
+</html>
